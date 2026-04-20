@@ -5,9 +5,26 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/viruslox/VLX_FrameFlow_GUI/backend/internal/api"
+	"github.com/viruslox/VLX_FrameFlow_GUI/backend/internal/config"
+	"github.com/viruslox/VLX_FrameFlow_GUI/backend/internal/system"
 )
 
 func main() {
+	// Load configuration
+	cfg := config.LoadConfig()
+	log.Printf("Using script path: %s\n", cfg.ScriptPath)
+
+	// Initialize System Executor
+	executor := system.NewExecutor(cfg.ScriptPath)
+
+	// Initialize API and WebSocket Hub
+	apiHandler := api.NewAPI(executor)
+	wsHub := api.NewWSHub()
+
+	// Start WebSocket Hub in background
+	go wsHub.Run()
+
 	r := gin.Default()
 
 	// Health check endpoint
@@ -16,6 +33,12 @@ func main() {
 			"status": "ok",
 		})
 	})
+
+	// Register API Routes
+	apiHandler.RegisterRoutes(r)
+
+	// Register WebSocket endpoint
+	r.GET("/ws", wsHub.HandleWebSocket)
 
 	log.Println("Starting server on :8080")
 	if err := r.Run(":8080"); err != nil {
