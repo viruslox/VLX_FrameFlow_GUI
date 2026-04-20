@@ -5,10 +5,10 @@
 - [x] Initialize Frontend SPA boilerplate.
 
 # Phase 2: Backend Core & Script Wrapping
-- [ ] Create Go interfaces for executing and capturing output from underlying Bash scripts (`os/exec`).
-- [ ] Implement mock Bash scripts for local development without an SBC.
-- [ ] Develop REST API endpoints for starting/stopping services (Routing, Video Encoding).
-- [ ] Implement the WebSocket hub for real-time data broadcasting.
+- [x] Create Go interfaces for executing and capturing output from underlying Bash scripts (`os/exec`).
+- [x] Implement mock Bash scripts for local development without an SBC.
+- [x] Develop REST API endpoints for starting/stopping services (Routing, Video Encoding).
+- [x] Implement the WebSocket hub for real-time data broadcasting.
 
 # Phase 3: Telemetry & System Monitoring
 - [ ] Create Go workers to parse network interfaces and system load.

@@ -4,55 +4,37 @@ import (
 	"bytes"
 	"fmt"
 	"os/exec"
-	"os/user"
-	"path/filepath"
 )
 
 type Executor struct {
-	ScriptPath string
 }
 
-func NewExecutor(scriptPath string) *Executor {
-	return &Executor{
-		ScriptPath: scriptPath,
-	}
+func NewExecutor() *Executor {
+	return &Executor{}
 }
 
 // Run executes a bash script by name with the given arguments.
-// It will attempt to use sudo -u FrameFlow if the current user is not FrameFlow.
+// It relies on the interactive bash shell to expand aliases like VLX_FrameFlow
+// setup by the environment.
 func (e *Executor) Run(scriptName string, args ...string) (string, error) {
-	fullPath := filepath.Join(e.ScriptPath, scriptName)
+	// Reconstruct the command to be executed by bash -ic
+	// We pass the alias as the command string and arguments as positional
+	// parameters to bash to avoid command injection.
+	// We need to use "$@" inside the bash script string to forward arguments.
+	bashCmdString := fmt.Sprintf("%s \"$@\"", scriptName)
 
-	var cmdArgs []string
+	// Construct the exec.Cmd: bash -ic 'alias_name "$@"' -- arg1 arg2 ...
+	cmdArgs := []string{"-ic", bashCmdString, "--"}
+	cmdArgs = append(cmdArgs, args...)
 
-	// Check current user
-	currentUser, err := user.Current()
-	useSudo := false
-	if err == nil && currentUser.Username != "FrameFlow" {
-		// Check if we are running as root or have sudo privileges.
-		// For simplicity, we just prepend sudo -u FrameFlow if we are not FrameFlow.
-		useSudo = true
-	}
-
-	if useSudo {
-		cmdArgs = append([]string{"-u", "FrameFlow", fullPath}, args...)
-	} else {
-		cmdArgs = append([]string{fullPath}, args...)
-	}
-
-	var cmd *exec.Cmd
-	if useSudo {
-		cmd = exec.Command("sudo", cmdArgs...)
-	} else {
-		cmd = exec.Command(cmdArgs[0], cmdArgs[1:]...)
-	}
+	cmd := exec.Command("bash", cmdArgs...)
 
 	var out bytes.Buffer
 	var stderr bytes.Buffer
 	cmd.Stdout = &out
 	cmd.Stderr = &stderr
 
-	err = cmd.Run()
+	err := cmd.Run()
 	if err != nil {
 		return "", fmt.Errorf("failed to execute %s: %v, stderr: %s", scriptName, err, stderr.String())
 	}
