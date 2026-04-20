@@ -36,7 +36,7 @@ The system is built with a focus on performance and low resource consumption for
 │   │   ├── system/         # Bash script wrappers and monitoring
 │   │   └── models/         # Data structures and shared types
 │   └── go.mod              # Go module definition
-├── frontend/               # Web application source code (Vue/React/Svelte)
+├── frontend/               # Web application source code (Svelte)
 │   ├── src/
 │   ├── public/
 │   └── package.json
