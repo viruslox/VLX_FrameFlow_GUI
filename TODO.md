@@ -1,8 +1,8 @@
 # Phase 1: Foundation & Scaffold
 - [x] Setup repository structure (backend/ and frontend/ folders).
 - [x] Initialize Go module and install basic dependencies (e.g., Gin or Fiber for HTTP, Gorilla for WebSockets).
-- [ ] Setup basic HTTP server with a health-check endpoint.
-- [ ] Initialize Frontend SPA boilerplate.
+- [x] Setup basic HTTP server with a health-check endpoint.
+- [x] Initialize Frontend SPA boilerplate.
 
 # Phase 2: Backend Core & Script Wrapping
 - [ ] Create Go interfaces for executing and capturing output from underlying Bash scripts (`os/exec`).
