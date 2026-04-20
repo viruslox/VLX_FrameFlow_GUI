@@ -20,8 +20,9 @@ The system is built with a focus on performance and low resource consumption for
 - Includes background workers to monitor system load, network interfaces, and external hardware logs.
 
 2. Web Frontend (Web-based SPA):
-- A reactive Single Page Application.
-- Communicates via WebSockets to provide live updates on network performance and video status.
+- A reactive Single Page Application built with Svelte and Vite.
+- Communicates via WebSockets to provide live updates on network performance, system load, GPS status, and video (FFmpeg) logs.
+- Incorporates a Control Panel making fetch requests to the Go backend REST API to configure and manage VLX_FrameFlow services directly from the dashboard.
 
 3. Mobile Client (Android):
 - Future native or cross-platform application.
