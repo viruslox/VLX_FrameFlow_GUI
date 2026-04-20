@@ -40,7 +40,7 @@ The system is built with a focus on performance and low resource consumption for
 │   ├── src/
 │   ├── public/
 │   └── package.json
-├── scripts/                # Local copy or submodule of core VLX_FrameFlow scripts
+├── scripts/                # Local mock implementations of core VLX_FrameFlow bash scripts for testing and development
 ├── docs/                   # Documentation and API specifications
 ├── build/                  # Deployment scripts and compiled binaries
 └── README.md

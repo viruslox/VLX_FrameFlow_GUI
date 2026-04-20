@@ -12,11 +12,10 @@ import (
 
 func main() {
 	// Load configuration
-	cfg := config.LoadConfig()
-	log.Printf("Using script path: %s\n", cfg.ScriptPath)
+	_ = config.LoadConfig() // Still load config in case we add other fields later
 
 	// Initialize System Executor
-	executor := system.NewExecutor(cfg.ScriptPath)
+	executor := system.NewExecutor()
 
 	// Initialize API and WebSocket Hub
 	apiHandler := api.NewAPI(executor)
