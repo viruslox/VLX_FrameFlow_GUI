@@ -24,6 +24,9 @@ func main() {
 	// Start WebSocket Hub in background
 	go wsHub.Run()
 
+	// Start Telemetry Worker
+	StartTelemetryWorker(wsHub)
+
 	r := gin.Default()
 
 	// Health check endpoint

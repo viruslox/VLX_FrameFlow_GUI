@@ -11,9 +11,9 @@
 - [x] Implement the WebSocket hub for real-time data broadcasting.
 
 # Phase 3: Telemetry & System Monitoring
-- [ ] Create Go workers to parse network interfaces and system load.
-- [ ] Create Go workers to read GPS serial data (if applicable) and FFmpeg logs.
-- [ ] Push telemetry data through WebSockets to connected clients.
+- [x] Create Go workers to parse network interfaces and system load.
+- [x] Create Go workers to read GPS serial data (if applicable) and FFmpeg logs.
+- [x] Push telemetry data through WebSockets to connected clients.
 
 # Phase 4: Frontend Development
 - [ ] Build the main Dashboard UI (Network status, Video status).
