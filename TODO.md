@@ -16,9 +16,9 @@
 - [x] Push telemetry data through WebSockets to connected clients.
 
 # Phase 4: Frontend Development
-- [ ] Build the main Dashboard UI (Network status, Video status).
-- [ ] Implement WebSocket client to handle real-time UI updates.
-- [ ] Create forms for configuration (editing bonding settings, bitrates, etc.).
+- [x] Build the main Dashboard UI (Network status, Video status).
+- [x] Implement WebSocket client to handle real-time UI updates.
+- [x] Create forms for configuration (editing bonding settings, bitrates, etc.).
 
 # Phase 5: Build & Packaging
 - [ ] Embed the compiled Frontend SPA directly into the Go binary using the `embed` package.
