@@ -17,6 +17,7 @@ The system is built with a focus on performance and low resource consumption for
 - Wraps core VLX_FrameFlow Bash scripts using 'os/exec'.
 - Exposes a REST API for configuration and status.
 - Implements WebSockets for real-time telemetry streaming to clients.
+- Includes background workers to monitor system load, network interfaces, and external hardware logs.
 
 2. Web Frontend (Web-based SPA):
 - A reactive Single Page Application.
