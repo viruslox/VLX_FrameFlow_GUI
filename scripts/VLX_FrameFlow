@@ -1,2 +1,0 @@
-#!/bin/bash
-echo "Mock VLX_FrameFlow called with args: $@"
