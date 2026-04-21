@@ -8,6 +8,7 @@ import (
 	"github.com/viruslox/VLX_FrameFlow_GUI/backend/internal/api"
 	"github.com/viruslox/VLX_FrameFlow_GUI/backend/internal/config"
 	"github.com/viruslox/VLX_FrameFlow_GUI/backend/internal/system"
+	"github.com/viruslox/VLX_FrameFlow_GUI/backend/ui"
 )
 
 func main() {
@@ -35,6 +36,9 @@ func main() {
 			"status": "ok",
 		})
 	})
+
+	// Serve embedded frontend
+	ui.ServeFrontend(r)
 
 	// Register API Routes
 	apiHandler.RegisterRoutes(r)

@@ -21,9 +21,9 @@
 - [x] Create forms for configuration (editing bonding settings, bitrates, etc.).
 
 # Phase 5: Build & Packaging
-- [ ] Embed the compiled Frontend SPA directly into the Go binary using the `embed` package.
-- [ ] Write a build script (`Makefile` or simple bash script) to compile for `linux/arm64` and `linux/amd64`.
-- [ ] Create a systemd service file to run the Go binary on boot.
+- [x] Embed the compiled Frontend SPA directly into the Go binary using the `embed` package.
+- [x] Write a build script (`build.sh`) to compile for `linux/arm64` and `linux/amd64`.
+- [x] Create a systemd service file to run the Go binary on boot.
 
 # Phase 6: Mobile (Future)
 - [ ] Evaluate Flutter/Kotlin for Android app.

@@ -46,3 +46,15 @@ The system is built with a focus on performance and low resource consumption for
 ├── docs/                   # Documentation and API specifications
 ├── build/                  # Deployment scripts and compiled binaries
 └── README.md
+
+## Building and Deployment
+
+To build the complete application (compiling the frontend and the Go backend for both AMD64 and ARM64 architectures), execute the root script:
+
+```bash
+./build.sh
+```
+
+Compiled binaries will be output to the `bin/` directory.
+
+A systemd service template for deployment is located at `build/vlx_frameflow_gui.service`, which assumes the application is deployed to `/opt/VLX_FrameFlow_GUI`.
