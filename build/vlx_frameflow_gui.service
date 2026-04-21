@@ -1,0 +1,18 @@
+[Unit]
+Description=VLX FrameFlow GUI Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=FrameFlow
+Group=FrameFlow
+WorkingDirectory=/opt/VLX_FrameFlow_GUI
+ExecStart=/opt/VLX_FrameFlow_GUI/vlx_frameflow_gui
+Restart=on-failure
+RestartSec=5
+
+# Environment variables
+Environment="GIN_MODE=release"
+
+[Install]
+WantedBy=multi-user.target
