@@ -1,11 +1,15 @@
 <script>
-  import { onMount } from 'svelte';
-  import { telemetryStore, connectionStatus, connectWebSocket } from './lib/ws.js';
-  import SystemStatus from './lib/SystemStatus.svelte';
-  import NetworkStatus from './lib/NetworkStatus.svelte';
-  import VideoStatus from './lib/VideoStatus.svelte';
-  import GPSStatus from './lib/GPSStatus.svelte';
-  import ControlPanel from './lib/ControlPanel.svelte';
+  import { onMount } from "svelte";
+  import {
+    telemetryStore,
+    connectionStatus,
+    connectWebSocket,
+  } from "./lib/ws.js";
+  import SystemStatus from "./lib/SystemStatus.svelte";
+  import NetworkStatus from "./lib/NetworkStatus.svelte";
+  import VideoStatus from "./lib/VideoStatus.svelte";
+  import GPSStatus from "./lib/GPSStatus.svelte";
+  import ControlPanel from "./lib/ControlPanel.svelte";
 
   onMount(() => {
     connectWebSocket();
@@ -58,6 +62,8 @@
     }
   }
   @media (prefers-color-scheme: dark) {
-    h1 { color: #fff; }
+    h1 {
+      color: #fff;
+    }
   }
 </style>

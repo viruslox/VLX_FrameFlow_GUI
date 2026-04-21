@@ -2,11 +2,11 @@
   export let interfaces = {};
 
   function formatBytes(bytes) {
-    if (bytes === 0) return '0 B';
+    if (bytes === 0) return "0 B";
     const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+    const sizes = ["B", "KB", "MB", "GB", "TB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   }
 </script>
 
@@ -22,7 +22,7 @@
         </tr>
       </thead>
       <tbody>
-        {#each Object.entries(interfaces) as [iface, stats]}
+        {#each Object.entries(interfaces) as [iface, stats] (iface)}
           <tr>
             <td>{iface}</td>
             <td>{formatBytes(stats.rx_bytes)}</td>
@@ -47,13 +47,19 @@
     width: 100%;
     border-collapse: collapse;
   }
-  th, td {
+  th,
+  td {
     text-align: left;
     padding: 0.5rem;
     border-bottom: 1px solid #ddd;
   }
   @media (prefers-color-scheme: dark) {
-    .card { background: #333; }
-    th, td { border-bottom: 1px solid #555; }
+    .card {
+      background: #333;
+    }
+    th,
+    td {
+      border-bottom: 1px solid #555;
+    }
   }
 </style>
