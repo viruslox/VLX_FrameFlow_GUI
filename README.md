@@ -29,6 +29,7 @@ The system is built with a focus on performance and low resource consumption for
 - Interfaces with the same Go backend API/WebSocket endpoints for mobile field use.
 
 ## File Tree Structure
+```bash
 .
 ├── backend/                # Go source code
 │   ├── cmd/
@@ -46,6 +47,7 @@ The system is built with a focus on performance and low resource consumption for
 ├── docs/                   # Documentation and API specifications
 ├── build/                  # Deployment scripts and compiled binaries
 └── README.md
+```
 
 ## Building and Deployment
 
