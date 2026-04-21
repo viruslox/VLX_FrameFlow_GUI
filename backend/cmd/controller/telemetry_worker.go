@@ -12,9 +12,7 @@ import (
 type TelemetryData struct {
 	Type              string                                  `json:"type"`
 	NetworkInterfaces map[string]system.NetworkInterfaceStats `json:"network_interfaces"`
-	SystemLoad        []float64                               `json:"system_load"`
-	GPS               system.GPSData                          `json:"gps"`
-	FFmpegLogs        []string                                `json:"ffmpeg_logs"`
+	SystemUsage       system.SystemUsage                      `json:"system_usage"`
 }
 
 func StartTelemetryWorker(wsHub *api.WSHub) {
@@ -26,9 +24,7 @@ func StartTelemetryWorker(wsHub *api.WSHub) {
 			data := TelemetryData{
 				Type:              "telemetry",
 				NetworkInterfaces: system.GetNetworkInterfaces(),
-				SystemLoad:        system.GetSystemLoad(),
-				GPS:               system.GetGPSData(),
-				FFmpegLogs:        system.GetFFmpegLogs(),
+				SystemUsage:       system.GetSystemUsage(),
 			}
 
 			jsonData, err := json.Marshal(data)

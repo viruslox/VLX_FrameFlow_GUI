@@ -1,16 +1,12 @@
 <script>
-  export let load = [];
+  export let usage = { cpu: 0, ram: 0, swap: 0 };
 </script>
 
 <div class="card">
-  <h2>System Load</h2>
-  {#if load && load.length === 3}
-    <p>1 min: {load[0]}</p>
-    <p>5 min: {load[1]}</p>
-    <p>15 min: {load[2]}</p>
-  {:else}
-    <p>Loading...</p>
-  {/if}
+  <h2>System Usage</h2>
+  <p>CPU: {usage.cpu.toFixed(1)}%</p>
+  <p>RAM: {usage.ram.toFixed(1)}%</p>
+  <p>Swap: {usage.swap.toFixed(1)}%</p>
 </div>
 
 <style>
