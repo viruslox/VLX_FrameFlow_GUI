@@ -6,7 +6,7 @@
   <h2>Video / FFmpeg Logs</h2>
   <div class="log-container">
     {#if logs && logs.length > 0}
-      {#each logs as log}
+      {#each logs as log, i (i)}
         <div class="log-line">{log}</div>
       {/each}
     {:else}
@@ -36,6 +36,8 @@
     word-break: break-all;
   }
   @media (prefers-color-scheme: dark) {
-    .card { background: #333; }
+    .card {
+      background: #333;
+    }
   }
 </style>

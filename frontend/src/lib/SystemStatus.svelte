@@ -21,6 +21,8 @@
     margin-bottom: 1rem;
   }
   @media (prefers-color-scheme: dark) {
-    .card { background: #333; }
+    .card {
+      background: #333;
+    }
   }
 </style>
