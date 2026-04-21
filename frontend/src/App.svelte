@@ -7,8 +7,6 @@
   } from "./lib/ws.js";
   import SystemStatus from "./lib/SystemStatus.svelte";
   import NetworkStatus from "./lib/NetworkStatus.svelte";
-  import VideoStatus from "./lib/VideoStatus.svelte";
-  import GPSStatus from "./lib/GPSStatus.svelte";
   import ControlPanel from "./lib/ControlPanel.svelte";
 
   onMount(() => {
@@ -22,15 +20,12 @@
 
   <div class="grid">
     <div class="col">
-      <SystemStatus load={$telemetryStore.systemLoad} />
-      <GPSStatus gps={$telemetryStore.gps} />
+      <SystemStatus usage={$telemetryStore.systemUsage} />
     </div>
     <div class="col">
       <NetworkStatus interfaces={$telemetryStore.networkInterfaces} />
     </div>
   </div>
-
-  <VideoStatus logs={$telemetryStore.ffmpegLogs} />
 
   <ControlPanel />
 </main>

@@ -2,9 +2,7 @@ import { writable } from "svelte/store";
 
 export const telemetryStore = writable({
   networkInterfaces: {},
-  systemLoad: [],
-  gps: { lat: 0, lon: 0, speed: 0 },
-  ffmpegLogs: [],
+  systemUsage: { cpu: 0, ram: 0, swap: 0 },
 });
 
 export const connectionStatus = writable("disconnected");
@@ -29,9 +27,7 @@ export function connectWebSocket() {
             return {
               ...store,
               networkInterfaces: data.network_interfaces || {},
-              systemLoad: data.system_load || [],
-              gps: data.gps || { lat: 0, lon: 0, speed: 0 },
-              ffmpegLogs: data.ffmpeg_logs || [],
+              systemUsage: data.system_usage || { cpu: 0, ram: 0, swap: 0 },
             };
           });
         }
