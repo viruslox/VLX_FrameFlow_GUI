@@ -1,5 +1,5 @@
 <script>
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import AnsiToHtml from "ansi-to-html";
 
   const ansiConvert = new AnsiToHtml();
@@ -8,7 +8,8 @@
   let errorMsg = "";
 
   let bondingStatusOutput = "";
-  let bitrate = "2500";
+  let mediamtxStatus = "unknown";
+  let mediamtxInterval;
 
   let camV = "0";
   let camA = "1";
@@ -75,13 +76,63 @@
     }
   }
 
-  function handleBitrateUpdate() {
-    handleAction("/api/mediamtx/config", "POST", { bitrate: bitrate });
+  async function checkMediaMTXStatus(silent = false) {
+    try {
+      if (!silent) {
+        lastResponse = "Loading...";
+        errorMsg = "";
+      }
+      const res = await fetch(`http://${window.location.hostname}:8080/api/mediamtx/status`, {
+        method: "POST"
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        mediamtxStatus = "error";
+        if (!silent) {
+           errorMsg = data.error || "Request failed";
+           lastResponse = "";
+        }
+        return;
+      }
+
+      // Check output string for typical service statuses
+      const output = typeof data.output === "string" ? data.output.toLowerCase() : "";
+      if (output.includes("stopped") || output.includes("inactive") || output.includes("dead")) {
+         mediamtxStatus = "stopped";
+      } else if (output.includes("running") || output.includes("active") || output.includes("executed")) {
+         mediamtxStatus = "running";
+      } else {
+         mediamtxStatus = "running"; // fallback if command succeeds but output is unknown format
+      }
+
+      if (!silent) {
+         lastResponse = ansiConvert.toHtml(
+          typeof data.output === "string"
+            ? data.output
+            : JSON.stringify(data.output || data, null, 2)
+         );
+      }
+    } catch (err) {
+      mediamtxStatus = "error";
+      if (!silent) {
+         errorMsg = err.message;
+         lastResponse = "";
+      }
+    }
   }
 
   onMount(() => {
     // initial fetch for bonding status
     handleAction("/api/frameflow/bonding", "GET", null, true);
+    checkMediaMTXStatus(true);
+    mediamtxInterval = setInterval(() => checkMediaMTXStatus(true), 60000);
+  });
+
+  onDestroy(() => {
+    if (mediamtxInterval) {
+      clearInterval(mediamtxInterval);
+    }
   });
 </script>
 
@@ -186,19 +237,17 @@
 
     <!-- MediaMTX -->
     <div class="control-group">
-      <h3>MediaMTX</h3>
-      <div class="form-group">
-        <label for="bitrate">Bitrate (kbps):</label>
-        <input type="number" id="bitrate" bind:value={bitrate} />
-        <button on:click={handleBitrateUpdate}>Update</button>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h3 style="margin: 0;">MediaMTX</h3>
+        <div class="indicator {mediamtxStatus}"></div>
       </div>
       <div class="buttons" style="margin-top: 0.5rem;">
-        <button on:click={() => handleAction("/api/mediamtx/start")}
+        <button on:click={async () => { await handleAction("/api/mediamtx/start"); await checkMediaMTXStatus(true); }}
           >Start</button
         >
-        <button on:click={() => handleAction("/api/mediamtx/stop")}>Stop</button
+        <button on:click={async () => { await handleAction("/api/mediamtx/stop"); await checkMediaMTXStatus(true); }}>Stop</button
         >
-        <button on:click={() => handleAction("/api/mediamtx/status")}
+        <button on:click={() => checkMediaMTXStatus(false)}
           >Status</button
         >
       </div>
@@ -360,5 +409,24 @@
       background-color: #666;
       border-color: #888;
     }
+  }
+
+  .indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: gray;
+  }
+  .indicator.running {
+    background-color: #0f0;
+    box-shadow: 0 0 5px #0f0;
+  }
+  .indicator.stopped {
+    background-color: #ff0;
+    box-shadow: 0 0 5px #ff0;
+  }
+  .indicator.error {
+    background-color: #f00;
+    box-shadow: 0 0 5px #f00;
   }
 </style>
