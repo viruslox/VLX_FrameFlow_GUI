@@ -18,16 +18,15 @@
   <h1>VLX FrameFlow Dashboard</h1>
   <p class="status">Connection Status: {$connectionStatus}</p>
 
-  <div class="grid">
-    <div class="col">
+  <div class="vertical-layout">
+    <div class="box">
       <SystemStatus usage={$telemetryStore.systemUsage} />
     </div>
-    <div class="col">
+    <div class="box">
       <NetworkStatus interfaces={$telemetryStore.networkInterfaces} />
     </div>
+    <ControlPanel />
   </div>
-
-  <ControlPanel />
 </main>
 
 <style>
@@ -46,16 +45,16 @@
     font-weight: bold;
     margin-bottom: 2rem;
   }
-  .grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+  .vertical-layout {
+    display: flex;
+    flex-direction: column;
     gap: 1rem;
+    align-items: stretch;
   }
-  @media (max-width: 768px) {
-    .grid {
-      grid-template-columns: 1fr;
-    }
+  .box {
+    width: 100%;
   }
+
   @media (prefers-color-scheme: dark) {
     h1 {
       color: #fff;
