@@ -10,6 +10,8 @@ type CommandExecutor interface {
 	Run(scriptName string, args ...string) (string, error)
 }
 
+var execCommand = exec.Command
+
 type Executor struct {
 }
 
@@ -31,7 +33,7 @@ func (e *Executor) Run(scriptName string, args ...string) (string, error) {
 	cmdArgs := []string{"-ic", bashCmdString, "--"}
 	cmdArgs = append(cmdArgs, args...)
 
-	cmd := exec.Command("bash", cmdArgs...)
+	cmd := execCommand("bash", cmdArgs...)
 
 	var out bytes.Buffer
 	var stderr bytes.Buffer
