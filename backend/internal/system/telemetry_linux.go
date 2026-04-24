@@ -15,6 +15,7 @@ import (
 )
 
 var (
+	readFile = os.ReadFile
 	prevIdle  uint64
 	prevTotal uint64
 )
@@ -48,7 +49,7 @@ func parseIPv6Hex(h string) string {
 // GetNetworkInterfaces parses /proc/net/dev to get interface stats and ip to get IPs/routes.
 func GetNetworkInterfaces() map[string]NetworkInterfaceStats {
 	stats := make(map[string]NetworkInterfaceStats)
-	data, err := os.ReadFile("/proc/net/dev")
+	data, err := readFile("/proc/net/dev")
 	if err == nil {
 		lines := strings.Split(string(data), "\n")
 		for _, line := range lines[2:] { // skip header
@@ -77,7 +78,7 @@ func GetNetworkInterfaces() map[string]NetworkInterfaceStats {
 	}
 
 	gw4 := make(map[string]string)
-	data4, _ := os.ReadFile("/proc/net/route")
+	data4, _ := readFile("/proc/net/route")
 	lines4 := strings.Split(string(data4), "\n")
 	if len(lines4) > 1 {
 		for _, line := range lines4[1:] {
@@ -94,7 +95,7 @@ func GetNetworkInterfaces() map[string]NetworkInterfaceStats {
 	}
 
 	gw6 := make(map[string]string)
-	data6, _ := os.ReadFile("/proc/net/ipv6_route")
+	data6, _ := readFile("/proc/net/ipv6_route")
 	lines6 := strings.Split(string(data6), "\n")
 	for _, line := range lines6 {
 		fields := strings.Fields(line)
@@ -113,7 +114,7 @@ func GetNetworkInterfaces() map[string]NetworkInterfaceStats {
 
 	for iface, stat := range stats {
 		operState := "UNKNOWN"
-		stateData, err := os.ReadFile(fmt.Sprintf("/sys/class/net/%s/operstate", iface))
+		stateData, err := readFile(fmt.Sprintf("/sys/class/net/%s/operstate", iface))
 		if err == nil {
 			operState = strings.ToUpper(strings.TrimSpace(string(stateData)))
 		}
@@ -136,7 +137,7 @@ func GetNetworkInterfaces() map[string]NetworkInterfaceStats {
 func GetSystemUsage() SystemUsage {
 	// CPU usage
 	var cpuUsage float64
-	dataStat, err := os.ReadFile("/proc/stat")
+	dataStat, err := readFile("/proc/stat")
 	if err == nil {
 		lines := strings.Split(string(dataStat), "\n")
 		if len(lines) > 0 {
@@ -173,7 +174,7 @@ func GetSystemUsage() SystemUsage {
 	var ramUsedPct float64
 	var swapUsedPct float64
 
-	dataMem, err := os.ReadFile("/proc/meminfo")
+	dataMem, err := readFile("/proc/meminfo")
 	if err == nil {
 		lines := strings.Split(string(dataMem), "\n")
 		mem := make(map[string]float64)
