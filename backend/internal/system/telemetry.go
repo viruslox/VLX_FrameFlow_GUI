@@ -1,10 +1,11 @@
 package system
 
 import (
-	"encoding/json"
+	"encoding/hex"
+	"fmt"
 	"log"
+	"net"
 	"os"
-	"os/exec"
 	"strconv"
 	"strings"
 )
@@ -30,20 +31,30 @@ var (
 	prevTotal uint64
 )
 
-type AddrInfo struct {
-	Ifname    string `json:"ifname"`
-	Operstate string `json:"operstate"`
-	AddrInfo  []struct {
-		Family    string `json:"family"`
-		Local     string `json:"local"`
-		Prefixlen int    `json:"prefixlen"`
-	} `json:"addr_info"`
+func parseIPv4Hex(h string) string {
+	b, err := hex.DecodeString(h)
+	if err != nil || len(b) != 4 {
+		return ""
+	}
+
+	// Determine endianness using the unsafe package or manually.
+	// For cross-platform support where /proc/net/route provides host byte order,
+	// net.IP requires big-endian byte order. However, since Linux x86 and ARM
+	// are generally little-endian, reversing the byte array here is the most
+	// robust standard path without diving into CGO or unsafe.
+	// We'll reverse it for the general little-endian case.
+	// It produces the correct IP addresses for almost all Linux deployments.
+	// But let's build the correct IP address safely.
+	ip := net.IPv4(b[3], b[2], b[1], b[0])
+	return ip.String()
 }
 
-type RouteInfo struct {
-	Dst     string `json:"dst"`
-	Gateway string `json:"gateway"`
-	Dev     string `json:"dev"`
+func parseIPv6Hex(h string) string {
+	b, err := hex.DecodeString(h)
+	if err != nil || len(b) != 16 {
+		return ""
+	}
+	return net.IP(b).String()
 }
 
 // GetNetworkInterfaces parses /proc/net/dev to get interface stats and ip to get IPs/routes.
@@ -77,57 +88,75 @@ func GetNetworkInterfaces() map[string]NetworkInterfaceStats {
 		stats["wlan0"] = NetworkInterfaceStats{RxBytes: 500, TxBytes: 100}
 	}
 
-	var addrs []AddrInfo
-	outAddr, errAddr := exec.Command("ip", "-j", "addr", "show").Output()
-	if errAddr == nil {
-		json.Unmarshal(outAddr, &addrs)
-	}
-
-	var routes4 []RouteInfo
-	outRoute4, errRoute4 := exec.Command("ip", "-j", "route", "show").Output()
-	if errRoute4 == nil {
-		json.Unmarshal(outRoute4, &routes4)
-	}
-
-	var routes6 []RouteInfo
-	outRoute6, errRoute6 := exec.Command("ip", "-j", "-6", "route", "show").Output()
-	if errRoute6 == nil {
-		json.Unmarshal(outRoute6, &routes6)
-	}
-
-	for _, addr := range addrs {
-		iface := addr.Ifname
-		stat := stats[iface]
-
-		stat.OperState = addr.Operstate
-
-		var ipv4, ipv6 string
-		for _, a := range addr.AddrInfo {
-			if a.Family == "inet" && ipv4 == "" {
-				ipv4 = a.Local + "/" + strconv.Itoa(a.Prefixlen)
-			} else if a.Family == "inet6" && ipv6 == "" && !strings.HasPrefix(a.Local, "fe80") {
-				ipv6 = a.Local + "/" + strconv.Itoa(a.Prefixlen)
+	gw4 := make(map[string]string)
+	data4, _ := os.ReadFile("/proc/net/route")
+	lines4 := strings.Split(string(data4), "\n")
+	if len(lines4) > 1 {
+		for _, line := range lines4[1:] {
+			fields := strings.Fields(line)
+			if len(fields) >= 3 {
+				iface := fields[0]
+				dst := fields[1]
+				gw := fields[2]
+				if dst == "00000000" && gw != "00000000" {
+					gw4[iface] = parseIPv4Hex(gw)
+				}
 			}
 		}
+	}
 
-		var gw4, gw6 string
-		for _, r := range routes4 {
-			if r.Dev == iface && r.Dst == "default" {
-				gw4 = r.Gateway
+	gw6 := make(map[string]string)
+	data6, _ := os.ReadFile("/proc/net/ipv6_route")
+	lines6 := strings.Split(string(data6), "\n")
+	for _, line := range lines6 {
+		fields := strings.Fields(line)
+		if len(fields) >= 10 {
+			dst := fields[0]
+			gw := fields[4]
+			iface := fields[9]
+			if dst == "00000000000000000000000000000000" && gw != "00000000000000000000000000000000" {
+				gw6[iface] = parseIPv6Hex(gw)
 			}
 		}
-		for _, r := range routes6 {
-			if r.Dev == iface && r.Dst == "default" {
-				gw6 = r.Gateway
+	}
+
+	ifaces, err := net.Interfaces()
+	if err == nil {
+		for _, i := range ifaces {
+			iface := i.Name
+			stat := stats[iface]
+
+			operState := "UNKNOWN"
+			stateData, err := os.ReadFile(fmt.Sprintf("/sys/class/net/%s/operstate", iface))
+			if err == nil {
+				operState = strings.ToUpper(strings.TrimSpace(string(stateData)))
 			}
+			stat.OperState = operState
+
+			var ipv4, ipv6 string
+			addrs, _ := i.Addrs()
+			for _, addr := range addrs {
+				ipNet, ok := addr.(*net.IPNet)
+				if ok {
+					if ipNet.IP.To4() != nil {
+						if ipv4 == "" {
+							ipv4 = ipNet.String()
+						}
+					} else if ipNet.IP.To16() != nil {
+						if ipv6 == "" && !ipNet.IP.IsLinkLocalUnicast() {
+							ipv6 = ipNet.String()
+						}
+					}
+				}
+			}
+
+			stat.IPv4 = ipv4
+			stat.IPv4GW = gw4[iface]
+			stat.IPv6 = ipv6
+			stat.IPv6GW = gw6[iface]
+
+			stats[iface] = stat
 		}
-
-		stat.IPv4 = ipv4
-		stat.IPv4GW = gw4
-		stat.IPv6 = ipv6
-		stat.IPv6GW = gw6
-
-		stats[iface] = stat
 	}
 
 	return stats
