@@ -10,6 +10,10 @@
   let bondingStatusOutput = "";
   let mediamtxStatus = "unknown";
   let mediamtxInterval;
+  let gpsStatus = "unknown";
+  let gpsInterval;
+  let clientStatus = "unknown";
+  let clientInterval;
 
   let camV = "0";
   let camA = "1";
@@ -122,16 +126,118 @@
     }
   }
 
+  async function checkGPSStatus(silent = false) {
+    try {
+      if (!silent) {
+        lastResponse = "Loading...";
+        errorMsg = "";
+      }
+      const res = await fetch(`http://${window.location.hostname}:8080/api/gps/status`, {
+        method: "POST"
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        gpsStatus = "error";
+        if (!silent) {
+           errorMsg = data.error || "Request failed";
+           lastResponse = "";
+        }
+        return;
+      }
+
+      // Check output string for typical service statuses
+      const output = typeof data.output === "string" ? data.output.toLowerCase() : "";
+      if (output.includes("stopped") || output.includes("inactive") || output.includes("dead")) {
+         gpsStatus = "stopped";
+      } else if (output.includes("running") || output.includes("active") || output.includes("executed")) {
+         gpsStatus = "running";
+      } else {
+         gpsStatus = "running"; // fallback if command succeeds but output is unknown format
+      }
+
+      if (!silent) {
+         lastResponse = ansiConvert.toHtml(
+          typeof data.output === "string"
+            ? data.output
+            : JSON.stringify(data.output || data, null, 2)
+         );
+      }
+    } catch (err) {
+      gpsStatus = "error";
+      if (!silent) {
+         errorMsg = err.message;
+         lastResponse = "";
+      }
+    }
+  }
+
+  async function checkClientStatus(silent = false) {
+    try {
+      if (!silent) {
+        lastResponse = "Loading...";
+        errorMsg = "";
+      }
+      const res = await fetch(`http://${window.location.hostname}:8080/api/frameflow/client/status`, {
+        method: "POST"
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        clientStatus = "error";
+        if (!silent) {
+           errorMsg = data.error || "Request failed";
+           lastResponse = "";
+        }
+        return;
+      }
+
+      // Check output string for typical service statuses
+      const output = typeof data.output === "string" ? data.output.toLowerCase() : "";
+      if (output.includes("stopped") || output.includes("inactive") || output.includes("dead")) {
+         clientStatus = "stopped";
+      } else if (output.includes("running") || output.includes("active") || output.includes("executed")) {
+         clientStatus = "running";
+      } else {
+         clientStatus = "running"; // fallback if command succeeds but output is unknown format
+      }
+
+      if (!silent) {
+         lastResponse = ansiConvert.toHtml(
+          typeof data.output === "string"
+            ? data.output
+            : JSON.stringify(data.output || data, null, 2)
+         );
+      }
+    } catch (err) {
+      clientStatus = "error";
+      if (!silent) {
+         errorMsg = err.message;
+         lastResponse = "";
+      }
+    }
+  }
+
   onMount(() => {
     // initial fetch for bonding status
     handleAction("/api/frameflow/bonding", "GET", null, true);
     checkMediaMTXStatus(true);
     mediamtxInterval = setInterval(() => checkMediaMTXStatus(true), 60000);
+    checkGPSStatus(true);
+    gpsInterval = setInterval(() => checkGPSStatus(true), 60000);
+    checkClientStatus(true);
+    clientInterval = setInterval(() => checkClientStatus(true), 60000);
   });
 
   onDestroy(() => {
     if (mediamtxInterval) {
       clearInterval(mediamtxInterval);
+    }
+    if (gpsInterval) {
+      clearInterval(gpsInterval);
+    }
+    if (clientInterval) {
+      clearInterval(clientInterval);
     }
   });
 </script>
@@ -141,18 +247,21 @@
   <div class="controls-grid three-cols">
     <!-- FrameFlow Client -->
     <div class="control-group">
-      <h3>FrameFlow Client</h3>
-      <div class="buttons">
-        <button on:click={() => handleAction("/api/frameflow/client/start")}
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h3 style="margin: 0;">FrameFlow Client</h3>
+        <div class="indicator {clientStatus}"></div>
+      </div>
+      <div class="buttons" style="margin-top: 0.5rem;">
+        <button on:click={async () => { await handleAction("/api/frameflow/client/start"); await checkClientStatus(true); }}
           >Start</button
         >
-        <button on:click={() => handleAction("/api/frameflow/client/stop")}
+        <button on:click={async () => { await handleAction("/api/frameflow/client/stop"); await checkClientStatus(true); }}
           >Stop</button
         >
-        <button on:click={() => handleAction("/api/frameflow/client/status")}
+        <button on:click={() => checkClientStatus(false)}
           >Status</button
         >
-        <button on:click={() => handleAction("/api/frameflow/client/reset")}
+        <button on:click={async () => { await handleAction("/api/frameflow/client/reset"); await checkClientStatus(true); }}
           >Reset</button
         >
       </div>
@@ -232,6 +341,10 @@
               device: deviceName,
             })}>Status</button
         >
+        <button
+          on:click={() =>
+            handleAction("/api/cameraman/status", "POST")}>Query</button
+        >
       </div>
     </div>
 
@@ -241,7 +354,7 @@
         <h3 style="margin: 0;">MediaMTX</h3>
         <div class="indicator {mediamtxStatus}"></div>
       </div>
-      <div class="buttons" style="margin-top: 0.5rem;">
+      <div class="buttons">
         <button on:click={async () => { await handleAction("/api/mediamtx/start"); await checkMediaMTXStatus(true); }}
           >Start</button
         >
@@ -255,11 +368,14 @@
 
     <!-- GPS Tracker -->
     <div class="control-group">
-      <h3>GPS Tracker</h3>
-      <div class="buttons">
-        <button on:click={() => handleAction("/api/gps/start")}>Start</button>
-        <button on:click={() => handleAction("/api/gps/stop")}>Stop</button>
-        <button on:click={() => handleAction("/api/gps/status")}>Status</button>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h3 style="margin: 0;">GPS Tracker</h3>
+        <div class="indicator {gpsStatus}"></div>
+      </div>
+      <div class="buttons" style="margin-top: 0.5rem;">
+        <button on:click={async () => { await handleAction("/api/gps/start"); await checkGPSStatus(true); }}>Start</button>
+        <button on:click={async () => { await handleAction("/api/gps/stop"); await checkGPSStatus(true); }}>Stop</button>
+        <button on:click={() => checkGPSStatus(false)}>Status</button>
       </div>
     </div>
   </div>
