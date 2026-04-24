@@ -2,10 +2,13 @@ package api
 
 import (
 	"net/http"
+	"regexp"
 
 	"github.com/gin-gonic/gin"
 	"github.com/viruslox/VLX_FrameFlow_GUI/backend/internal/system"
 )
+
+var deviceRegex = regexp.MustCompile(`^V\d+A\d+$`)
 
 type API struct {
 	executor system.CommandExecutor
@@ -132,6 +135,10 @@ func (a *API) handleCameraman(c *gin.Context) {
 
 	var args []string
 	if req.Device != "" {
+		if !deviceRegex.MatchString(req.Device) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid device parameter format"})
+			return
+		}
 		args = append(args, req.Device)
 	}
 	args = append(args, action)
