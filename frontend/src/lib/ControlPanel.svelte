@@ -2,7 +2,7 @@
   import { onMount, onDestroy } from "svelte";
   import AnsiToHtml from "ansi-to-html";
 
-  const ansiConvert = new AnsiToHtml();
+  const ansiConvert = new AnsiToHtml({ escapeXML: true });
 
   let lastResponse = "";
   let errorMsg = "";
@@ -171,7 +171,7 @@
         >
       </div>
       <div class="mini-response">
-        {@html bondingStatusOutput || "No data"}
+        {bondingStatusOutput || "No data"}
       </div>
     </div>
 
