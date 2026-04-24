@@ -118,3 +118,29 @@ func TestGetNetworkInterfacesLinux(t *testing.T) {
 	// It mainly ensures the function doesn't panic.
 	GetNetworkInterfaces()
 }
+
+func TestGetSystemUsage_ErrorPath(t *testing.T) {
+	// Save the original readFile function and restore it after the test
+	originalReadFile := readFile
+	t.Cleanup(func() {
+		readFile = originalReadFile
+	})
+
+	// Mock readFile to return an error when accessing /proc/stat and /proc/meminfo
+	readFile = func(name string) ([]byte, error) {
+		if name == "/proc/stat" {
+			return nil, errors.New("mock error reading /proc/stat")
+		}
+		if name == "/proc/meminfo" {
+			return nil, errors.New("mock error reading /proc/meminfo")
+		}
+		return []byte(""), nil
+	}
+
+	usage := GetSystemUsage()
+
+	// Assert the mock data is populated on error as per telemetry_linux.go logic
+	assert.Equal(t, 25.5, usage.CPU, "Expected mock CPU usage data")
+	assert.Equal(t, 40.2, usage.Ram, "Expected mock Ram usage data")
+	assert.Equal(t, 10.5, usage.Swap, "Expected mock Swap usage data")
+}
