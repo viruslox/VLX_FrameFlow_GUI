@@ -11,9 +11,39 @@ import (
 	"github.com/viruslox/VLX_FrameFlow_GUI/backend/ui"
 )
 
+func setupRouter(cfg *config.Config, apiHandler *api.API, wsHub *api.WSHub) *gin.Engine {
+	r := gin.Default()
+
+	// Health check endpoint (unauthenticated)
+	r.GET("/health", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"status": "ok",
+		})
+	})
+
+	// Setup BasicAuth
+	auth := gin.BasicAuth(gin.Accounts{
+		cfg.AuthUser: cfg.AuthPass,
+	})
+
+	// Apply authentication middleware to all subsequent routes
+	r.Use(auth)
+
+	// Serve embedded frontend
+	ui.ServeFrontend(r)
+
+	// Register API Routes
+	apiHandler.RegisterRoutes(r)
+
+	// Register WebSocket endpoint
+	r.GET("/ws", wsHub.HandleWebSocket)
+
+	return r
+}
+
 func main() {
 	// Load configuration
-	_ = config.LoadConfig() // Still load config in case we add other fields later
+	cfg := config.LoadConfig()
 
 	// Initialize System Executor
 	executor := system.NewExecutor()
@@ -28,23 +58,8 @@ func main() {
 	// Start Telemetry Worker
 	StartTelemetryWorker(wsHub)
 
-	r := gin.Default()
-
-	// Health check endpoint
-	r.GET("/health", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"status": "ok",
-		})
-	})
-
-	// Serve embedded frontend
-	ui.ServeFrontend(r)
-
-	// Register API Routes
-	apiHandler.RegisterRoutes(r)
-
-	// Register WebSocket endpoint
-	r.GET("/ws", wsHub.HandleWebSocket)
+	// Setup Router
+	r := setupRouter(cfg, apiHandler, wsHub)
 
 	log.Println("Starting server on :8080")
 	if err := r.Run(":8080"); err != nil {
