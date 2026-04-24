@@ -1,3 +1,5 @@
+//go:build linux
+
 package system
 
 import (
@@ -8,23 +10,9 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"syscall"
+	"unsafe"
 )
-
-type NetworkInterfaceStats struct {
-	RxBytes   uint64 `json:"rx_bytes"`
-	TxBytes   uint64 `json:"tx_bytes"`
-	OperState string `json:"operstate"`
-	IPv4      string `json:"ipv4"`
-	IPv4GW    string `json:"ipv4_gw"`
-	IPv6      string `json:"ipv6"`
-	IPv6GW    string `json:"ipv6_gw"`
-}
-
-type SystemUsage struct {
-	CPU  float64 `json:"cpu"`
-	Ram  float64 `json:"ram"`
-	Swap float64 `json:"swap"`
-}
 
 var (
 	prevIdle  uint64
@@ -120,43 +108,25 @@ func GetNetworkInterfaces() map[string]NetworkInterfaceStats {
 		}
 	}
 
-	ifaces, err := net.Interfaces()
-	if err == nil {
-		for _, i := range ifaces {
-			iface := i.Name
-			stat := stats[iface]
+	links := getLinks()
+	ipv4s, ipv6s := getIPs()
 
-			operState := "UNKNOWN"
-			stateData, err := os.ReadFile(fmt.Sprintf("/sys/class/net/%s/operstate", iface))
-			if err == nil {
-				operState = strings.ToUpper(strings.TrimSpace(string(stateData)))
-			}
-			stat.OperState = operState
-
-			var ipv4, ipv6 string
-			addrs, _ := i.Addrs()
-			for _, addr := range addrs {
-				ipNet, ok := addr.(*net.IPNet)
-				if ok {
-					if ipNet.IP.To4() != nil {
-						if ipv4 == "" {
-							ipv4 = ipNet.String()
-						}
-					} else if ipNet.IP.To16() != nil {
-						if ipv6 == "" && !ipNet.IP.IsLinkLocalUnicast() {
-							ipv6 = ipNet.String()
-						}
-					}
-				}
-			}
-
-			stat.IPv4 = ipv4
-			stat.IPv4GW = gw4[iface]
-			stat.IPv6 = ipv6
-			stat.IPv6GW = gw6[iface]
-
-			stats[iface] = stat
+	for iface, stat := range stats {
+		operState := "UNKNOWN"
+		stateData, err := os.ReadFile(fmt.Sprintf("/sys/class/net/%s/operstate", iface))
+		if err == nil {
+			operState = strings.ToUpper(strings.TrimSpace(string(stateData)))
 		}
+		stat.OperState = operState
+
+		if idx, ok := links[iface]; ok {
+			stat.IPv4 = ipv4s[idx]
+			stat.IPv6 = ipv6s[idx]
+		}
+		stat.IPv4GW = gw4[iface]
+		stat.IPv6GW = gw6[iface]
+
+		stats[iface] = stat
 	}
 
 	return stats
@@ -238,4 +208,68 @@ func GetSystemUsage() SystemUsage {
 		Ram:  ramUsedPct,
 		Swap: swapUsedPct,
 	}
+}
+
+func getIPs() (map[int]string, map[int]string) {
+	ipv4s := make(map[int]string)
+	ipv6s := make(map[int]string)
+
+	tabAddr, err := syscall.NetlinkRIB(syscall.RTM_GETADDR, syscall.AF_UNSPEC)
+	if err == nil {
+		msgs, err := syscall.ParseNetlinkMessage(tabAddr)
+		if err == nil {
+			for _, m := range msgs {
+				if m.Header.Type == syscall.RTM_NEWADDR {
+					ifa := (*syscall.IfAddrmsg)(unsafe.Pointer(&m.Data[0]))
+					attrs, err := syscall.ParseNetlinkRouteAttr(&m)
+					if err == nil {
+						var ip net.IP
+						for _, a := range attrs {
+							if a.Attr.Type == syscall.IFA_ADDRESS {
+								ip = net.IP(a.Value)
+							}
+						}
+						if ip != nil {
+							idx := int(ifa.Index)
+							if ifa.Family == syscall.AF_INET {
+								if ipv4s[idx] == "" {
+									ipv4s[idx] = fmt.Sprintf("%s/%d", ip.String(), ifa.Prefixlen)
+								}
+							} else if ifa.Family == syscall.AF_INET6 {
+								if ipv6s[idx] == "" && !ip.IsLinkLocalUnicast() {
+									ipv6s[idx] = fmt.Sprintf("%s/%d", ip.String(), ifa.Prefixlen)
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return ipv4s, ipv6s
+}
+
+func getLinks() map[string]int {
+	links := make(map[string]int)
+	tabLink, err := syscall.NetlinkRIB(syscall.RTM_GETLINK, syscall.AF_UNSPEC)
+	if err == nil {
+		msgs, err := syscall.ParseNetlinkMessage(tabLink)
+		if err == nil {
+			for _, m := range msgs {
+				if m.Header.Type == syscall.RTM_NEWLINK {
+					ifi := (*syscall.IfInfomsg)(unsafe.Pointer(&m.Data[0]))
+					attrs, err := syscall.ParseNetlinkRouteAttr(&m)
+					if err == nil {
+						for _, a := range attrs {
+							if a.Attr.Type == syscall.IFLA_IFNAME && len(a.Value) > 0 {
+								name := string(a.Value[:len(a.Value)-1])
+								links[name] = int(ifi.Index)
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return links
 }
