@@ -2,7 +2,6 @@ package api
 
 import (
 	"log"
-	"net/http"
 	"sync"
 
 	"github.com/gin-gonic/gin"
@@ -12,10 +11,6 @@ import (
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
-	// Allow all origins for development
-	CheckOrigin: func(r *http.Request) bool {
-		return true
-	},
 }
 
 type WSHub struct {
