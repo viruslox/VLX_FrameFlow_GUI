@@ -71,6 +71,18 @@ func TestHandleCameraman(t *testing.T) {
 			expectedStatus: http.StatusBadRequest,
 		},
 		{
+			name:           "Error - Invalid Device Pattern",
+			action:         "start",
+			device:         "; rm -rf /",
+			expectedStatus: http.StatusBadRequest,
+		},
+		{
+			name:           "Error - Invalid Device Pattern (JSON)",
+			action:         "start",
+			device:         "V1A1; echo test",
+			expectedStatus: http.StatusBadRequest,
+		},
+		{
 			name:           "Error - Executor Failure",
 			action:         "start",
 			device:         "V0A1",
