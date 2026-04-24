@@ -8,10 +8,10 @@ import (
 )
 
 type API struct {
-	executor *system.Executor
+	executor system.CommandExecutor
 }
 
-func NewAPI(executor *system.Executor) *API {
+func NewAPI(executor system.CommandExecutor) *API {
 	return &API{
 		executor: executor,
 	}

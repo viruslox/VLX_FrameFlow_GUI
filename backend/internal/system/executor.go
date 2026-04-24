@@ -6,10 +6,14 @@ import (
 	"os/exec"
 )
 
+type CommandExecutor interface {
+	Run(scriptName string, args ...string) (string, error)
+}
+
 type Executor struct {
 }
 
-func NewExecutor() *Executor {
+func NewExecutor() CommandExecutor {
 	return &Executor{}
 }
 
