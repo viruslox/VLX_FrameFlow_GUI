@@ -445,7 +445,6 @@
     align-items: center;
     gap: 0.5rem;
   }
-  .form-group input,
   .form-group select {
     padding: 0.3rem;
     border: 1px solid #ccc;
@@ -510,7 +509,6 @@
     .console-box {
       background: #222;
     }
-    .form-group input,
     .form-group select {
       background: #555;
       color: #fff;
