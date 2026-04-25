@@ -251,7 +251,7 @@
         <h3 style="margin: 0;">FrameFlow Client</h3>
         <div class="indicator {clientStatus}"></div>
       </div>
-      <div class="buttons" style="margin-top: 0.5rem;">
+      <div class="buttons">
         <button on:click={async () => { await handleAction("/api/frameflow/client/start"); await checkClientStatus(true); }}
           >Start</button
         >
@@ -372,7 +372,7 @@
         <h3 style="margin: 0;">GPS Tracker</h3>
         <div class="indicator {gpsStatus}"></div>
       </div>
-      <div class="buttons" style="margin-top: 0.5rem;">
+      <div class="buttons">
         <button on:click={async () => { await handleAction("/api/gps/start"); await checkGPSStatus(true); }}>Start</button>
         <button on:click={async () => { await handleAction("/api/gps/stop"); await checkGPSStatus(true); }}>Stop</button>
         <button on:click={() => checkGPSStatus(false)}>Status</button>
