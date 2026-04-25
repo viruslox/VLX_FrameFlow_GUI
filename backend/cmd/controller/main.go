@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/viruslox/VLX_FrameFlow_GUI/backend/internal/api"
 	"github.com/viruslox/VLX_FrameFlow_GUI/backend/internal/config"
@@ -13,6 +14,12 @@ import (
 
 func setupRouter(cfg *config.Config, apiHandler *api.API, wsHub *api.WSHub) *gin.Engine {
 	r := gin.Default()
+
+	// Configure CORS middleware to allow cross-origin requests
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowAllOrigins = true
+	corsConfig.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
+	r.Use(cors.New(corsConfig))
 
 	// Health check endpoint (unauthenticated)
 	r.GET("/health", func(c *gin.Context) {

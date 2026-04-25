@@ -4,7 +4,10 @@ import (
 	"bytes"
 	"fmt"
 	"os/exec"
+	"regexp"
 )
+
+var scriptNameRegex = regexp.MustCompile(`^[a-zA-Z0-9_-]+$`)
 
 type CommandExecutor interface {
 	Run(scriptName string, args ...string) (string, error)
@@ -23,6 +26,10 @@ func NewExecutor() CommandExecutor {
 // It relies on the interactive bash shell to expand aliases like VLX_FrameFlow
 // setup by the environment.
 func (e *Executor) Run(scriptName string, args ...string) (string, error) {
+	if !scriptNameRegex.MatchString(scriptName) {
+		return "", fmt.Errorf("invalid script name: %s", scriptName)
+	}
+
 	// Reconstruct the command to be executed by bash -ic
 	// We pass the alias as the command string and arguments as positional
 	// parameters to bash to avoid command injection.
