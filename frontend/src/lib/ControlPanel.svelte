@@ -280,7 +280,7 @@
         >
       </div>
       <div class="mini-response">
-        {bondingStatusOutput || "No data"}
+        {@html bondingStatusOutput || "No data"}
       </div>
     </div>
 
