@@ -62,7 +62,7 @@
       const formatted = ansiConvert.toHtml(
         typeof data.output === "string"
           ? data.output
-          : JSON.stringify(data.output || data, null, 2),
+          : (JSON.stringify(data.output || data, null, 2) || ""),
       );
 
       if (isBondingStatus) {
@@ -114,7 +114,7 @@
          lastResponse = ansiConvert.toHtml(
           typeof data.output === "string"
             ? data.output
-            : JSON.stringify(data.output || data, null, 2)
+            : (JSON.stringify(data.output || data, null, 2) || "")
          );
       }
     } catch (err) {
@@ -160,7 +160,7 @@
          lastResponse = ansiConvert.toHtml(
           typeof data.output === "string"
             ? data.output
-            : JSON.stringify(data.output || data, null, 2)
+            : (JSON.stringify(data.output || data, null, 2) || "")
          );
       }
     } catch (err) {
@@ -206,7 +206,7 @@
          lastResponse = ansiConvert.toHtml(
           typeof data.output === "string"
             ? data.output
-            : JSON.stringify(data.output || data, null, 2)
+            : (JSON.stringify(data.output || data, null, 2) || "")
          );
       }
     } catch (err) {
