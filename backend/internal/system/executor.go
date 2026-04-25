@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os/exec"
 	"regexp"
+	"syscall"
 )
 
 var scriptNameRegex = regexp.MustCompile(`^[a-zA-Z0-9_-]+$`)
@@ -46,6 +47,7 @@ func (e *Executor) Run(scriptName string, args ...string) (string, error) {
 	var stderr bytes.Buffer
 	cmd.Stdout = &out
 	cmd.Stderr = &stderr
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setsid: true}
 
 	err := cmd.Run()
 	if err != nil {
