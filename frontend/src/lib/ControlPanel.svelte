@@ -14,6 +14,8 @@
   let gpsInterval;
   let clientStatus = "unknown";
   let clientInterval;
+  let cameramanStatus = "off";
+  let cameramanInterval;
 
   let camV = "0";
   let camA = "1";
@@ -172,6 +174,86 @@
     }
   }
 
+  async function handleCameramanService() {
+    try {
+      errorMsg = "";
+      lastResponse = "Loading...";
+
+      const resStatus = await fetch(`/api/cameraman/status`, {
+        method: "POST"
+      });
+      const dataStatus = await resStatus.json();
+
+      if (!resStatus.ok) {
+        throw new Error(dataStatus.error || "Request failed");
+      }
+
+      const resList = await fetch(`/api/cameraman/list-dev`, {
+        method: "POST"
+      });
+      const dataList = await resList.json();
+
+      if (!resList.ok) {
+        throw new Error(dataList.error || "Request failed");
+      }
+
+      const outputStatus = typeof dataStatus.output === "string" ? dataStatus.output : (JSON.stringify(dataStatus.output || dataStatus, null, 2) || "");
+      const outputList = typeof dataList.output === "string" ? dataList.output : (JSON.stringify(dataList.output || dataList, null, 2) || "");
+
+      lastResponse = ansiConvert.toHtml(outputStatus + "\n" + outputList);
+    } catch (err) {
+      errorMsg = err.message;
+      lastResponse = "";
+    }
+  }
+
+  async function checkCameramanStatus(silent = false) {
+    try {
+      if (!silent) {
+        lastResponse = "Loading...";
+        errorMsg = "";
+      }
+      const res = await fetch(`/api/cameraman/status`, {
+        method: "POST"
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        cameramanStatus = "strange";
+        if (!silent) {
+           errorMsg = data.error || "Request failed";
+           lastResponse = "";
+        }
+        return;
+      }
+
+      const output = typeof data.output === "string" ? data.output : "";
+      const lowerOutput = output.toLowerCase();
+
+      if (lowerOutput.includes("no active cameraman services running.")) {
+         cameramanStatus = "off";
+      } else if (lowerOutput.includes("cameraman services:") || lowerOutput.includes("active: active (running)")) {
+         cameramanStatus = "running";
+      } else {
+         cameramanStatus = "strange";
+      }
+
+      if (!silent) {
+         lastResponse = ansiConvert.toHtml(
+          typeof data.output === "string"
+            ? data.output
+            : (JSON.stringify(data.output || data, null, 2) || "")
+         );
+      }
+    } catch (err) {
+      cameramanStatus = "strange";
+      if (!silent) {
+         errorMsg = err.message;
+         lastResponse = "";
+      }
+    }
+  }
+
   async function checkClientStatus(silent = false) {
     try {
       if (!silent) {
@@ -227,6 +309,8 @@
     gpsInterval = setInterval(() => checkGPSStatus(true), 60000);
     checkClientStatus(true);
     clientInterval = setInterval(() => checkClientStatus(true), 60000);
+    checkCameramanStatus(true);
+    cameramanInterval = setInterval(() => checkCameramanStatus(true), 60000);
   });
 
   onDestroy(() => {
@@ -238,6 +322,9 @@
     }
     if (clientInterval) {
       clearInterval(clientInterval);
+    }
+    if (cameramanInterval) {
+      clearInterval(cameramanInterval);
     }
   });
 </script>
@@ -307,8 +394,11 @@
   <div class="controls-grid three-cols">
     <!-- Cameraman -->
     <div class="control-group">
-      <h3>Cameraman</h3>
-      <div class="form-group" style="margin-bottom: 0.5rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h3 style="margin: 0;">Cameraman</h3>
+        <div class="indicator {cameramanStatus}"></div>
+      </div>
+      <div class="form-group" style="margin-bottom: 0.5rem; margin-top: 0.5rem;">
         <label for="camV">Video (Vx):</label>
         <select id="camV" bind:value={camV}>
           {#each videoDevices as v}
@@ -342,8 +432,7 @@
             })}>Status</button
         >
         <button
-          on:click={() =>
-            handleAction("/api/cameraman/list-dev", "POST")}>List</button
+          on:click={handleCameramanService} style="margin-left: auto;">Service</button
         >
       </div>
     </div>
@@ -535,12 +624,16 @@
     background-color: #0f0;
     box-shadow: 0 0 5px #0f0;
   }
-  .indicator.stopped {
+  .indicator.stopped, .indicator.strange {
     background-color: #ff0;
     box-shadow: 0 0 5px #ff0;
   }
   .indicator.error {
     background-color: #f00;
     box-shadow: 0 0 5px #f00;
+  }
+  .indicator.off {
+    background-color: gray;
+    box-shadow: none;
   }
 </style>
