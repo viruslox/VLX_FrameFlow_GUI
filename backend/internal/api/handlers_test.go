@@ -66,6 +66,14 @@ func TestHandleCameraman(t *testing.T) {
 			expectedArgs:   []string{"status"},
 		},
 		{
+			name:           "Happy Path - List Devices",
+			action:         "list-dev",
+			device:         "",
+			executorOutput: "dev1\ndev2",
+			expectedStatus: http.StatusOK,
+			expectedArgs:   []string{"list-dev"},
+		},
+		{
 			name:           "Error - Invalid Action",
 			action:         "invalid",
 			expectedStatus: http.StatusBadRequest,
