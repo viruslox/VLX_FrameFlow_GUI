@@ -122,7 +122,7 @@ type CameramanRequest struct {
 
 func (a *API) handleCameraman(c *gin.Context) {
 	action := c.Param("action")
-	if action != "start" && action != "stop" && action != "status" {
+	if action != "start" && action != "stop" && action != "status" && action != "list-dev" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid action"})
 		return
 	}

@@ -343,7 +343,7 @@
         >
         <button
           on:click={() =>
-            handleAction("/api/cameraman/status", "POST")}>Query</button
+            handleAction("/api/cameraman/list-dev", "POST")}>List</button
         >
       </div>
     </div>
