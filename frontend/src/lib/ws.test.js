@@ -5,7 +5,7 @@ import { connectWebSocket, connectionStatus, telemetryStore } from './ws.js';
 
 describe('WebSocket connection logic', () => {
   let mockServer;
-  const WS_URL = 'ws://localhost:8080/ws';
+  const WS_URL = 'ws://localhost:9090/ws';
 
   beforeEach(() => {
     // Reset stores

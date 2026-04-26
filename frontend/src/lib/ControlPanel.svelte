@@ -52,7 +52,7 @@
       }
 
       const res = await fetch(
-        `http://${window.location.hostname}:8080${endpoint}`,
+        `http://${window.location.hostname}:9090${endpoint}`,
         options,
       );
       const data = await res.json();
@@ -89,7 +89,7 @@
         lastResponse = "Loading...";
         errorMsg = "";
       }
-      const res = await fetch(`http://${window.location.hostname}:8080/api/mediamtx/status`, {
+      const res = await fetch(`http://${window.location.hostname}:9090/api/mediamtx/status`, {
         method: "POST"
       });
       const data = await res.json();
@@ -135,7 +135,7 @@
         lastResponse = "Loading...";
         errorMsg = "";
       }
-      const res = await fetch(`http://${window.location.hostname}:8080/api/gps/status`, {
+      const res = await fetch(`http://${window.location.hostname}:9090/api/gps/status`, {
         method: "POST"
       });
       const data = await res.json();
@@ -187,7 +187,7 @@
       errorMsg = "";
       lastResponse = "Loading...";
 
-      const resStatus = await fetch(`/api/cameraman/status`, {
+      const resStatus = await fetch(`http://${window.location.hostname}:9090/api/cameraman/status`, {
         method: "POST"
       });
       const dataStatus = await resStatus.json();
@@ -196,7 +196,7 @@
         throw new Error(dataStatus.error || "Request failed");
       }
 
-      const resList = await fetch(`/api/cameraman/list-dev`, {
+      const resList = await fetch(`http://${window.location.hostname}:9090/api/cameraman/list-dev`, {
         method: "POST"
       });
       const dataList = await resList.json();
@@ -221,7 +221,7 @@
         lastResponse = "Loading...";
         errorMsg = "";
       }
-      const res = await fetch(`/api/cameraman/status`, {
+      const res = await fetch(`http://${window.location.hostname}:9090/api/cameraman/status`, {
         method: "POST"
       });
       const data = await res.json();
@@ -268,7 +268,7 @@
         lastResponse = "Loading...";
         errorMsg = "";
       }
-      const res = await fetch(`http://${window.location.hostname}:8080/api/frameflow/client/status`, {
+      const res = await fetch(`http://${window.location.hostname}:9090/api/frameflow/client/status`, {
         method: "POST"
       });
       const data = await res.json();

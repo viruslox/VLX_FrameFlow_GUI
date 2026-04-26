@@ -9,7 +9,6 @@ import (
 	"github.com/viruslox/VLX_FrameFlow_GUI/backend/internal/api"
 	"github.com/viruslox/VLX_FrameFlow_GUI/backend/internal/config"
 	"github.com/viruslox/VLX_FrameFlow_GUI/backend/internal/system"
-	"github.com/viruslox/VLX_FrameFlow_GUI/backend/ui"
 )
 
 func setupRouter(cfg *config.Config, apiHandler *api.API, wsHub *api.WSHub) *gin.Engine {
@@ -37,7 +36,7 @@ func setupRouter(cfg *config.Config, apiHandler *api.API, wsHub *api.WSHub) *gin
 	r.Use(auth)
 
 	// Serve embedded frontend
-	ui.ServeFrontend(r)
+	// ui.ServeFrontend(r)
 
 	// Register API Routes
 	apiHandler.RegisterRoutes(r)
@@ -68,8 +67,8 @@ func main() {
 	// Setup Router
 	r := setupRouter(cfg, apiHandler, wsHub)
 
-	log.Println("Starting server on :8080")
-	if err := r.Run(":8080"); err != nil {
+	log.Println("Starting server on :9090")
+	if err := r.Run(":9090"); err != nil {
 		log.Fatalf("Server failed to start: %v", err)
 	}
 }
