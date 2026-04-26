@@ -9,7 +9,7 @@ export const telemetryStore = writable({
 export const connectionStatus = writable("disconnected");
 
 export function connectWebSocket() {
-  const wsUrl = `ws://${window.location.hostname}:8080/ws`;
+  const wsUrl = `ws://${window.location.hostname}:9090/ws`;
 
   const connect = () => {
     connectionStatus.set("connecting");
