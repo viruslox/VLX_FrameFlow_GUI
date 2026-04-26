@@ -1,6 +1,7 @@
 <script>
   import { onMount, onDestroy } from "svelte";
   import AnsiToHtml from "ansi-to-html";
+  import { telemetryStore } from "./ws.js";
 
   const ansiConvert = new AnsiToHtml({ escapeXML: true });
 
@@ -373,7 +374,10 @@
 
     <!-- Access Point (FrameFlow AP) -->
     <div class="control-group">
-      <h3>Access Point</h3>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h3 style="margin: 0;">Access Point</h3>
+        <span style="font-size: 0.85em; color: #666;">{$telemetryStore.wifiMode}</span>
+      </div>
       <div class="buttons">
         <button on:click={() => handleAction("/api/frameflow/ap/start")}
           >Start</button

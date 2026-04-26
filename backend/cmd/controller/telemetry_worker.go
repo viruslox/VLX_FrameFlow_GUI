@@ -13,6 +13,7 @@ type TelemetryData struct {
 	Type              string                                  `json:"type"`
 	NetworkInterfaces map[string]system.NetworkInterfaceStats `json:"network_interfaces"`
 	SystemUsage       system.SystemUsage                      `json:"system_usage"`
+	WifiMode          string                                  `json:"wifi_mode"`
 }
 
 func StartTelemetryWorker(wsHub *api.WSHub) {
@@ -25,6 +26,7 @@ func StartTelemetryWorker(wsHub *api.WSHub) {
 				Type:              "telemetry",
 				NetworkInterfaces: system.GetNetworkInterfaces(),
 				SystemUsage:       system.GetSystemUsage(),
+				WifiMode:          system.GetWifiMode(),
 			}
 
 			jsonData, err := json.Marshal(data)
