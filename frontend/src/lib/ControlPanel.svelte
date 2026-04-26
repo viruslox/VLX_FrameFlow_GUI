@@ -150,13 +150,20 @@
       }
 
       // Check output string for typical service statuses
-      const output = typeof data.output === "string" ? data.output.toLowerCase() : "";
-      if (output.includes("stopped") || output.includes("inactive") || output.includes("dead")) {
-         gpsStatus = "stopped";
-      } else if (output.includes("running") || output.includes("active") || output.includes("executed")) {
+      const output = typeof data.output === "string" ? data.output : "";
+
+      const isGpsdMissing = /Unit frameflow-gpsd\.service could not be found/i.test(output);
+      const isSenderMissing = /Unit frameflow-gps-sender\.service could not be found/i.test(output);
+
+      const isGpsdRunning = /● frameflow-gpsd\.service[\s\S]*?Active: active \(running\)/i.test(output);
+      const isSenderRunning = /● frameflow-gps-sender\.service[\s\S]*?Active: active \(running\)/i.test(output);
+
+      if (isGpsdMissing && isSenderMissing) {
+         gpsStatus = "off";
+      } else if (isGpsdRunning && isSenderRunning) {
          gpsStatus = "running";
       } else {
-         gpsStatus = "running"; // fallback if command succeeds but output is unknown format
+         gpsStatus = "error";
       }
 
       if (!silent) {
