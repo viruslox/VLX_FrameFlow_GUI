@@ -383,7 +383,12 @@
     <div class="control-group">
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <h3 style="margin: 0;">Access Point</h3>
-        <span style="font-size: 0.85em; color: #666;">{$telemetryStore.wifiMode}</span>
+        <span class="wifi-status"
+              class:master={$telemetryStore.wifiMode === "Master"}
+              class:managed={$telemetryStore.wifiMode === "Managed"}
+              class:not-found={$telemetryStore.wifiMode === "Not found"}>
+          {$telemetryStore.wifiMode}
+        </span>
       </div>
       <div class="buttons">
         <button on:click={() => handleAction("/api/frameflow/ap/start")}
@@ -646,5 +651,20 @@
   .indicator.off {
     background-color: gray;
     box-shadow: none;
+  }
+
+  .wifi-status {
+    font-size: 0.85em;
+    color: #666;
+  }
+  .wifi-status.master {
+    font-size: 1.1rem;
+    color: #0f0;
+  }
+  .wifi-status.managed {
+    color: #d4b106;
+  }
+  .wifi-status.not-found {
+    color: #ff4444;
   }
 </style>
