@@ -1,0 +1,48 @@
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /health                   --> main.setupRouter.func1 (4 handlers)
+[GIN-debug] POST   /api/frameflow/client/:action --> github.com/viruslox/VLX_FrameFlow_GUI/backend/internal/api.(*API).handleFrameFlowClient-fm (5 handlers)
+[GIN-debug] POST   /api/frameflow/ap/:action --> github.com/viruslox/VLX_FrameFlow_GUI/backend/internal/api.(*API).handleFrameFlowAP-fm (5 handlers)
+[GIN-debug] GET    /api/frameflow/bonding    --> github.com/viruslox/VLX_FrameFlow_GUI/backend/internal/api.(*API).handleFrameFlowBonding-fm (5 handlers)
+[GIN-debug] POST   /api/mediamtx/:action     --> github.com/viruslox/VLX_FrameFlow_GUI/backend/internal/api.(*API).handleMediaMTX-fm (5 handlers)
+[GIN-debug] POST   /api/gps/:action          --> github.com/viruslox/VLX_FrameFlow_GUI/backend/internal/api.(*API).handleGPS-fm (5 handlers)
+[GIN-debug] POST   /api/cameraman/:action    --> github.com/viruslox/VLX_FrameFlow_GUI/backend/internal/api.(*API).handleCameraman-fm (5 handlers)
+[GIN-debug] GET    /ws                       --> github.com/viruslox/VLX_FrameFlow_GUI/backend/internal/api.(*WSHub).HandleWebSocket-fm (5 handlers)
+2026/04/26 18:39:59 Starting server on :8080
+[GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
+Please check https://github.com/gin-gonic/gin/blob/master/docs/doc.md#dont-trust-all-proxies for details.
+[GIN-debug] Listening and serving HTTP on :8080
+[GIN] 2026/04/26 - 18:47:08 | 401 |  58.65µs |             ::1 | GET      "/"
+[GIN] 2026/04/26 - 18:47:08 | 200 | 115.819µs |             ::1 | GET      "/"
+[GIN] 2026/04/26 - 18:47:08 | 200 |  13.77ms |             ::1 | GET      "/assets/index-UgWXq5zJ.js"
+[GIN] 2026/04/26 - 18:47:08 | 200 |  13.31ms |             ::1 | GET      "/assets/index-Cik6PZ26.css"
+[GIN] 2026/04/26 - 18:47:09 | 500 | 141.07ms |             ::1 | POST     "/api/gps/status"
+[GIN] 2026/04/26 - 18:47:09 | 500 | 136.93ms |             ::1 | POST     "/api/mediamtx/status"
+[GIN] 2026/04/26 - 18:47:09 | 500 | 141.42ms |             ::1 | POST     "/api/cameraman/status"
+[GIN] 2026/04/26 - 18:47:09 | 500 | 141.66ms |             ::1 | POST     "/api/frameflow/client/status"
+[GIN] 2026/04/26 - 18:47:09 | 500 | 142.29ms |             ::1 | GET      "/api/frameflow/bonding"
+[GIN] 2026/04/26 - 18:47:39 | 200 |   30.23s |             ::1 | GET      "/ws"
+[GIN] 2026/04/26 - 18:49:47 | 401 | 40.986µs |             ::1 | GET      "/"
+[GIN] 2026/04/26 - 18:49:47 | 200 | 23.726µs |             ::1 | GET      "/"
+[GIN] 2026/04/26 - 18:49:47 | 200 | 240.977µs |             ::1 | GET      "/assets/index-UgWXq5zJ.js"
+[GIN] 2026/04/26 - 18:49:47 | 200 | 172.384µs |             ::1 | GET      "/assets/index-Cik6PZ26.css"
+[GIN] 2026/04/26 - 18:49:47 | 500 |  23.97ms |             ::1 | GET      "/api/frameflow/bonding"
+[GIN] 2026/04/26 - 18:49:47 | 500 |  27.63ms |             ::1 | POST     "/api/mediamtx/status"
+[GIN] 2026/04/26 - 18:49:47 | 500 |  28.24ms |             ::1 | POST     "/api/gps/status"
+[GIN] 2026/04/26 - 18:49:47 | 500 |  42.43ms |             ::1 | POST     "/api/cameraman/status"
+[GIN] 2026/04/26 - 18:49:47 | 500 |  37.15ms |             ::1 | POST     "/api/frameflow/client/status"
+[GIN] 2026/04/26 - 18:49:47 | 200 | 287.42ms |             ::1 | GET      "/ws"
+[GIN] 2026/04/26 - 18:52:31 | 401 | 36.599µs |             ::1 | GET      "/"
+[GIN] 2026/04/26 - 18:52:31 | 200 | 23.971µs |             ::1 | GET      "/"
+[GIN] 2026/04/26 - 18:52:31 | 200 | 633.992µs |             ::1 | GET      "/assets/index-UgWXq5zJ.js"
+[GIN] 2026/04/26 - 18:52:31 | 200 | 107.138µs |             ::1 | GET      "/assets/index-Cik6PZ26.css"
+[GIN] 2026/04/26 - 18:52:32 | 500 |   26.3ms |             ::1 | GET      "/api/frameflow/bonding"
+[GIN] 2026/04/26 - 18:52:32 | 500 |  29.12ms |             ::1 | POST     "/api/gps/status"
+[GIN] 2026/04/26 - 18:52:32 | 500 |  31.08ms |             ::1 | POST     "/api/frameflow/client/status"
+[GIN] 2026/04/26 - 18:52:32 | 500 |  33.96ms |             ::1 | POST     "/api/cameraman/status"
+[GIN] 2026/04/26 - 18:52:32 | 500 |  34.84ms |             ::1 | POST     "/api/mediamtx/status"
+[GIN] 2026/04/26 - 18:53:02 | 200 |    30.1s |             ::1 | GET      "/ws"
