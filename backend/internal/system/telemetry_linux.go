@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	readFile = os.ReadFile
+	readFile  = os.ReadFile
 	prevIdle  uint64
 	prevTotal uint64
 )

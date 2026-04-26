@@ -3,6 +3,7 @@ import { writable } from "svelte/store";
 export const telemetryStore = writable({
   networkInterfaces: {},
   systemUsage: { cpu: 0, ram: 0, swap: 0 },
+  wifiMode: "Not found",
 });
 
 export const connectionStatus = writable("disconnected");
@@ -28,6 +29,7 @@ export function connectWebSocket() {
               ...store,
               networkInterfaces: data.network_interfaces || {},
               systemUsage: data.system_usage || { cpu: 0, ram: 0, swap: 0 },
+              wifiMode: data.wifi_mode || "Not found",
             };
           });
         }
