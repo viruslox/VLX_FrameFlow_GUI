@@ -2,11 +2,17 @@
   import { formatBytes } from "./utils.js";
 
   export let interfaces = {};
+
+  $: sortedInterfaces = Object.entries(interfaces).sort(([a], [b]) => {
+    if (a === "lo") return -1;
+    if (b === "lo") return 1;
+    return a.localeCompare(b);
+  });
 </script>
 
 <div class="card">
   <h2 style="text-align: center;">Network Interfaces</h2>
-  {#if Object.keys(interfaces).length > 0}
+  {#if sortedInterfaces.length > 0}
     <table>
       <thead>
         <tr>
@@ -19,7 +25,7 @@
         </tr>
       </thead>
       <tbody>
-        {#each Object.entries(interfaces) as [iface, stats] (iface)}
+        {#each sortedInterfaces as [iface, stats] (iface)}
           <tr>
             <td>{iface}</td>
             <td>
